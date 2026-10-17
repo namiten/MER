@@ -1,0 +1,44 @@
+name: daily-update
+
+on:
+  schedule:
+    - cron: '12 7 * * 1-5'
+    - cron: '42 7 * * 1-5'
+    - cron: '42 8 * * 1-5'
+    - cron: '30 9 * * 1-5'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/cache@v4
+        with:
+          path: daily_raw/stq
+          key: stq-${{ github.run_id }}
+          restore-keys: stq-
+      - name: Install
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y poppler-utils
+          pip install -r requirements.txt
+      - name: Update
+        run: |
+          python daily_update.py
+          python update_nikkei.py
+          python update_quick_weekly.py
+          python export_site_data.py
+      - name: Commit
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add data/信用評価損益率_日次_公式.csv data/panel_daily.json data/nikkei_daily.csv data/quick_weekly_calc.csv docs/payload.dat
+          git diff --cached --quiet || git commit -m "日次の評価損益率を更新"
+          git push

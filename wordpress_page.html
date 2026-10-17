@@ -1,0 +1,438 @@
+<div id="mvp-root">
+<style>
+#mvp-root{max-width:980px;margin:0 auto;font-family:"MS PGothic","ＭＳ Ｐゴシック","MS PGothic",sans-serif;color:#000;line-height:1.6}
+#mvp-root *{box-sizing:border-box}
+#mvp-root .mvp-title{font-size:20px;font-weight:700;margin:0 0 6px;padding:2px 0 8px 12px;border-left:6px solid #1a7fd4;border-bottom:2px solid #666;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+#mvp-root .mvp-title a{font-size:14px;font-weight:400;color:#03307b;text-decoration:none}
+#mvp-root .mvp-bar,#mvp-root h3{position:relative;background:#ddd;color:#000}
+#mvp-root .mvp-bar::before,#mvp-root h3::before{content:"";position:absolute;left:0;top:21%;bottom:21%;width:5px;background:#355480}
+#mvp-root .mvp-bar{padding:8px 12px 8px 16px;margin:20px 0 8px;display:flex;justify-content:space-between;font-size:17px;font-weight:700}
+#mvp-root .mvp-bar span:last-child{font-size:15px;font-weight:400}
+#mvp-root .mvp-unit{text-align:right;font-size:14px;margin:6px 0 4px}
+#mvp-root table.mvp-table{width:100%;border-collapse:collapse;font-size:16px;background:#fff}
+#mvp-root .mvp-table th{background:#e4e3dc;font-weight:400;text-align:center;border:1px solid #fff;padding:12px 6px}
+#mvp-root .mvp-table td{text-align:right;padding:12px 10px;border-bottom:1px solid #ddd;border-right:1px solid #eee}
+#mvp-root .mvp-table tbody tr:nth-child(even) td,#mvp-root .mvp-table tbody tr:nth-child(even) th{background:#f1f1ec}
+#mvp-root .mvp-table tbody th{background:#fff;text-align:left;padding:12px 10px;border-bottom:1px solid #ddd}
+#mvp-root .mvp-table tbody th.mvp-indent{padding-left:30px}
+#mvp-root .mvp-num{color:#03307b;text-decoration:underline;text-decoration-color:#c6c6c6}
+#mvp-root .mvp-up{color:#ba0000}
+#mvp-root .mvp-down{color:#1f7d00}
+#mvp-root .mvp-boxes{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+#mvp-root .mvp-box{display:flex;border:2px solid #e4e3dc;background:#fff;min-height:56px}
+#mvp-root .mvp-box-label{background:#e4e3dc;padding:8px 10px;display:flex;align-items:center;font-size:15px;flex:0 0 auto;max-width:60%}
+#mvp-root .mvp-box-value{flex:1;display:flex;align-items:center;justify-content:flex-end;padding:8px 10px;font-size:20px;white-space:nowrap}
+#mvp-root h3{font-size:17px;margin:32px 0 12px;padding:6px 12px 6px 16px}
+#mvp-root .mvp-periods{display:flex;justify-content:center;gap:0;margin:8px 0 0}
+#mvp-root .mvp-periods button{font:inherit;font-size:14px;padding:4px 16px;border:1px solid #999;background:#f4f4f4;color:#000;cursor:pointer;margin-left:-1px}
+#mvp-root .mvp-periods button.mvp-active{background:#dcdcdc;font-weight:700}
+#mvp-root .mvp-line{display:flex;align-items:center;justify-content:center;gap:10px;margin:6px 0 0;font-size:14px;flex-wrap:wrap}
+#mvp-root .mvp-line label{display:inline-flex;align-items:center;gap:6px;cursor:pointer}
+#mvp-root .mvp-line input[type=range]{width:260px;max-width:100%;accent-color:#355480}
+#mvp-root .mvp-line-value{min-width:56px;text-align:right}
+#mvp-root .mvp-chart-title{text-align:center;font-size:20px;font-weight:700;margin:28px 0 6px}
+#mvp-root .mvp-toggles{display:flex;flex-wrap:wrap;gap:6px 24px;justify-content:center;margin:0 0 6px;font-size:14px}
+#mvp-root .mvp-toggles label{display:inline-flex;align-items:center;gap:6px;cursor:pointer}
+#mvp-root .mvp-key-line{display:inline-block;width:22px;height:0;border-top:3px solid}
+#mvp-root .mvp-key-area{display:inline-block;width:14px;height:12px}
+#mvp-root .mvp-chart{position:relative;height:360px;margin:0 0 4px;background:#fff}
+#mvp-root .mvp-source{font-size:13px;color:#000;margin:0 0 8px}
+#mvp-root .mvp-note{font-size:13px;color:#000}
+#mvp-root .mvp-note li{margin:4px 0}
+#mvp-root .mvp-error{color:#b3261e;font-weight:700}
+@media (max-width:760px){#mvp-root .mvp-boxes{grid-template-columns:repeat(2,1fr)}#mvp-root table.mvp-table{font-size:13px}#mvp-root .mvp-table th,#mvp-root .mvp-table td{padding:8px 4px}#mvp-root .mvp-table tbody th.mvp-indent{padding-left:14px}#mvp-root .mvp-chart{height:280px}#mvp-root .mvp-box-label{font-size:13px}#mvp-root .mvp-box-value{font-size:17px}}
+</style>
+
+<div class="mvp-title"><span>二市場信用残高</span><a href="#mvp-chart-anchor">信用評価損益率の推移</a></div>
+
+<div class="mvp-bar"><span>二市場合計</span><span id="mvp-date-1"></span></div>
+<p class="mvp-unit">(単位:億円、百万株)</p>
+<table class="mvp-table">
+<thead>
+<tr><th rowspan="2" style="width:12%"></th><th colspan="4">金額ベース</th><th colspan="4">株数ベース</th></tr>
+<tr><th>売残高</th><th>前日比</th><th>買残高</th><th>前日比</th><th>売残高</th><th>前日比</th><th>買残高</th><th>前日比</th></tr>
+</thead>
+<tbody id="mvp-balance-body"></tbody>
+</table>
+
+<div class="mvp-bar"><span>二市場評価損益率</span><span id="mvp-date-2"></span></div>
+<div class="mvp-boxes" id="mvp-boxes"></div>
+
+<div id="mvp-chart-anchor" class="mvp-bar"><span>信用評価損益率の推移</span><span></span></div>
+<div class="mvp-toggles">
+<label><input type="checkbox" data-series="0" checked><span class="mvp-key-line" style="border-color:#c0281a"></span>評価損益率(買い方)</label>
+<label><input type="checkbox" data-series="1" checked><span class="mvp-key-area" style="background:#e5d3d3"></span>買い残高(右軸)</label>
+<label><input type="checkbox" data-series="2"><span class="mvp-key-line" style="border-color:#2b2b80"></span>信用倍率(金額)</label>
+</div>
+
+<div class="mvp-chart-title">信用評価損益率（二市場）</div>
+<div class="mvp-periods"><button type="button" data-years="5" class="mvp-active">5年</button><button type="button" data-years="10">10年</button><button type="button" data-years="0">全期間</button></div>
+<div class="mvp-chart"><canvas id="mvp-weekly-chart"></canvas></div>
+<div class="mvp-line"><label><input type="checkbox" id="mvp-line-on">横線</label><input type="range" id="mvp-line-range" step="1" disabled><span class="mvp-line-value" id="mvp-line-value"></span></div>
+<p class="mvp-source">出典：東京証券取引所、名古屋証券取引所（独自算出）。2007年1月〜2026年9月18日は週末時点、2026年9月25日以降は算出できた日の値です。</p>
+
+<h3>算出方法とデータ</h3>
+<ul class="mvp-note">
+<li>評価損益率（買い方）＝（買残の時価 − 買残の約定代金）÷ 買残の約定代金。買残の時価は、銘柄ごとの買い残株数に、その日の終値を掛けて、全銘柄を合計した値です。評価損益率（売り方）は、（売残の約定代金 − 売残の時価）÷ 売残の約定代金で、同じ方法により算出しています。</li>
+<li>銘柄別の買い残・売り残株数と約定代金から直接算出し、社内対当の推計を用いません。QUICKが公表する値とは、算出方法が異なるため、値が異なります。</li>
+<li>信用倍率は、買残高 ÷ 売残高です（金額は約定代金ベース）。残高は、東京証券取引所・名古屋証券取引所が公表する日々の銘柄別信用取引残高（申込み現在）です。前日比は、公表資料の前日比です。</li>
+<li>株価は、東京証券取引所日報・名古屋証券取引所日報の終値です。売買がなく終値がない銘柄は、直近の終値で評価しています。株価がなく評価できない銘柄が、わずかにあります。</li>
+<li>週次の推移（2007年〜2026年8月）は、同じ方法で算出した、週末時点の値です。</li>
+<li>本ページの値は、参考値です。正確性を保証するものではなく、投資の助言ではありません。</li>
+</ul>
+<p class="mvp-note" id="mvp-updated"></p>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+(function () {
+  var DATA_URL = 'https://namiten.github.io/MER/data.json';
+  var MINUS = '−';
+  Chart.defaults.font.family = '"MS PGothic","ＭＳ Ｐゴシック",sans-serif';
+  Chart.defaults.font.size = 13;
+  Chart.defaults.color = '#000';
+
+  function signed(value, digits) {
+    var text = Math.abs(value).toFixed(digits);
+    return (value < 0 ? MINUS : '+') + text;
+  }
+
+  function withComma(value) {
+    return Math.round(value).toLocaleString('ja-JP');
+  }
+
+  function changeClass(value) {
+    return value < 0 ? 'mvp-down' : 'mvp-up';
+  }
+
+  function dateLabel(isoDate) {
+    var parts = isoDate.split('-');
+    return Number(parts[1]) + '月' + Number(parts[2]) + '日申し込み現在';
+  }
+
+  function cell(text, className) {
+    var td = document.createElement('td');
+    var span = document.createElement('span');
+    span.textContent = text;
+    span.className = className;
+    td.appendChild(span);
+    return td;
+  }
+
+  function balanceRow(label, indent, amount, shares, key) {
+    var tr = document.createElement('tr');
+    var th = document.createElement('th');
+    th.textContent = label;
+    th.className = indent ? 'mvp-indent' : '';
+    tr.appendChild(th);
+    var changeKey = key === 'total' ? 'change' : key + '_change';
+    [[amount, 'sell', 1e8, 0, 1], [amount, 'buy', 1e8, 0, 1], [shares, 'sell', 1e6, 0, 1], [shares, 'buy', 1e6, 0, 1]].forEach(function (spec) {
+      var side = spec[0][spec[1]];
+      tr.appendChild(cell(withComma(side[key] / spec[2]), 'mvp-num'));
+      var change = side[changeKey] / spec[2];
+      tr.appendChild(cell(signed(change, spec[4]), changeClass(change)));
+    });
+    return tr;
+  }
+
+  function box(label, text, className) {
+    var container = document.createElement('div');
+    container.className = 'mvp-box';
+    var labelElement = document.createElement('div');
+    labelElement.className = 'mvp-box-label';
+    labelElement.textContent = label;
+    var valueElement = document.createElement('div');
+    valueElement.className = 'mvp-box-value';
+    var span = document.createElement('span');
+    span.className = className;
+    span.textContent = text;
+    valueElement.appendChild(span);
+    container.appendChild(labelElement);
+    container.appendChild(valueElement);
+    return container;
+  }
+
+  var SERIES = [
+    { key: 'pl', label: '評価損益率(買い方)', unit: '%' },
+    { key: 'buy', label: '買い残高', unit: '億円' },
+    { key: 'ratio', label: '信用倍率(金額)', unit: '倍' }
+  ];
+  var chartState = { chart: null, rows: [], limits: null, line: { enabled: false, value: 0 } };
+  var DAY_MS = 86400000;
+  var LINE_MIN = -20;
+
+  function toDay(isoDate) {
+    var parts = isoDate.split('-');
+    return Date.UTC(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2])) / DAY_MS;
+  }
+
+  function dayToIso(day) {
+    return new Date(day * DAY_MS).toISOString().slice(0, 10);
+  }
+
+  function dayToYear(day) {
+    return new Date(day * DAY_MS).getUTCFullYear();
+  }
+
+  function bound(values, step, roundUp) {
+    var extreme = roundUp ? Math.max.apply(null, values) : Math.min.apply(null, values);
+    return (roundUp ? Math.ceil(extreme / step) : Math.floor(extreme / step)) * step;
+  }
+
+  function computeBounds(rows) {
+    return {
+      plMin: bound(rows.map(function (row) { return row.pl; }), 5, false),
+      plMax: bound(rows.map(function (row) { return row.pl; }), 5, true),
+      buyMax: bound(rows.map(function (row) { return row.buy; }), 1000, true),
+      ratioMax: bound(rows.map(function (row) { return row.ratio; }), 1, true)
+    };
+  }
+
+  function signedNumber(value) {
+    return (value < 0 ? MINUS : '') + Math.abs(value);
+  }
+
+  function buildRows(data) {
+    var rows = data.weekly.map(function (row) { return { x: toDay(row.week), pl: row.pl, buy: row.buy, ratio: row.ratio }; });
+    var lastWeek = rows[rows.length - 1].x;
+    data.daily.forEach(function (row) {
+      var day = toDay(row.date);
+      if (day > lastWeek) {
+        rows.push({ x: day, pl: row.pl, buy: row.buy, ratio: row.ratio });
+      }
+    });
+    return rows;
+  }
+
+  function yearTicks(scale) {
+    var firstYear = dayToYear(scale.min);
+    var lastYear = dayToYear(scale.max);
+    var years = [];
+    for (var year = firstYear; year <= lastYear; year++) {
+      var day = Date.UTC(year, 0, 1) / DAY_MS;
+      if (day >= scale.min && day <= scale.max) {
+        years.push(year);
+      }
+    }
+    var width = scale.width || scale.chart.width || 600;
+    var step = Math.max(1, Math.ceil(years.length * 46 / width));
+    scale.ticks = years.filter(function (year, index) { return index % step === 0; }).map(function (year) { return { value: Date.UTC(year, 0, 1) / DAY_MS }; });
+  }
+
+  var referenceLines = {
+    id: 'referenceLines',
+    afterDatasetsDraw: function (chart) {
+      if (!chart.isDatasetVisible(0)) {
+        return;
+      }
+      var area = chart.chartArea;
+      var scale = chart.scales.yPl;
+      var context = chart.ctx;
+      context.save();
+      context.beginPath();
+      context.rect(area.left, area.top - 2, area.width, area.height + 4);
+      context.clip();
+      var zeroY = Math.round(scale.getPixelForValue(0)) + 0.5;
+      context.strokeStyle = '#555';
+      context.lineWidth = 1.5;
+      context.beginPath();
+      context.moveTo(area.left, zeroY);
+      context.lineTo(area.right, zeroY);
+      context.stroke();
+      if (chartState.line.enabled) {
+        var lineY = Math.round(scale.getPixelForValue(chartState.line.value)) + 0.5;
+        context.strokeStyle = '#000';
+        context.lineWidth = 1;
+        context.setLineDash([6, 4]);
+        context.beginPath();
+        context.moveTo(area.left, lineY);
+        context.lineTo(area.right, lineY);
+        context.stroke();
+        context.setLineDash([]);
+        context.fillStyle = '#000';
+        context.font = '13px "MS PGothic","ＭＳ Ｐゴシック",sans-serif';
+        context.textAlign = 'left';
+        context.fillText(signed(chartState.line.value, 0) + '%', area.left + 4, lineY - 4);
+      }
+      context.restore();
+    }
+  };
+
+  function makeChart(canvasId, rows) {
+    chartState.rows = rows;
+    chartState.chart = new Chart(document.getElementById(canvasId).getContext('2d'), {
+      type: 'line',
+      data: {
+        datasets: [
+          { label: SERIES[0].label, data: rows.map(function (row) { return { x: row.x, y: row.pl }; }), yAxisID: 'yPl', borderColor: '#c0281a', borderWidth: 1.6, pointRadius: 0, pointHoverRadius: 3, fill: false, tension: 0, clip: { left: 0, right: 8, top: 4, bottom: 4 }, order: 1 },
+          { label: SERIES[1].label, data: rows.map(function (row) { return { x: row.x, y: row.buy }; }), yAxisID: 'yBuy', borderColor: '#d3b4b4', backgroundColor: '#e5d3d3', borderWidth: 1, pointRadius: 0, pointHoverRadius: 0, fill: 'origin', tension: 0, clip: { left: 0, right: 8, top: 4, bottom: 4 }, order: 3 },
+          { label: SERIES[2].label, data: rows.map(function (row) { return { x: row.x, y: row.ratio }; }), yAxisID: 'yRatio', hidden: true, borderColor: '#2b2b80', borderWidth: 1.6, pointRadius: 0, pointHoverRadius: 3, fill: false, tension: 0, clip: { left: 0, right: 8, top: 4, bottom: 4 }, order: 2 }
+        ]
+      },
+      plugins: [referenceLines],
+      options: {
+        parsing: false,
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: false,
+        layout: { padding: { top: 6, bottom: 6, left: 6, right: 14 } },
+        interaction: { mode: 'index', intersect: false, axis: 'x' },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#fff', titleColor: '#000', bodyColor: '#000', borderColor: '#999', borderWidth: 1, cornerRadius: 0, displayColors: true,
+            callbacks: {
+              title: function (items) { return items.length ? dayToIso(items[0].parsed.x) : ''; },
+              label: function (item) {
+                var spec = SERIES[item.datasetIndex];
+                if (spec.key === 'pl') { return spec.label + ' ' + signed(item.parsed.y, 2) + '%'; }
+                if (spec.key === 'buy') { return spec.label + ' ' + withComma(item.parsed.y) + '億円'; }
+                return spec.label + ' ' + item.parsed.y.toFixed(2) + '倍';
+              }
+            }
+          }
+        },
+        scales: {
+          yPl: {
+            display: 'auto', position: 'left',
+            grid: { color: '#e3e3e3' },
+            border: { display: false },
+            ticks: { stepSize: 5, color: '#000', callback: function (value) { return signedNumber(value) + '%'; } }
+          },
+          yRatio: { display: false, position: 'left', min: 0 },
+          yBuy: {
+            display: 'auto', position: 'right', min: 0,
+            grid: { display: false }, border: { display: false },
+            title: { display: true, text: '買い残高(億円)', color: '#000', align: 'end' },
+            afterBuildTicks: function (scale) { var ticks = []; for (var value = 0; value <= scale.max; value += 10000) { ticks.push({ value: value }); } scale.ticks = ticks; },
+            ticks: { color: '#000', callback: function (value) { return value.toLocaleString('ja-JP'); } }
+          },
+          x: {
+            type: 'linear', grid: { display: false }, border: { display: true, color: '#c6d0e0' },
+            afterBuildTicks: yearTicks,
+            ticks: { maxRotation: 0, color: '#000', callback: function (value) { return String(dayToYear(value)); } }
+          }
+        }
+      }
+    });
+  }
+
+  function applyPeriod(years) {
+    var rows = chartState.rows;
+    var chart = chartState.chart;
+    var last = rows[rows.length - 1].x;
+    var first = rows[0].x;
+    var from = first;
+    if (years > 0) {
+      var end = new Date(last * DAY_MS);
+      from = Math.max(first, Date.UTC(end.getUTCFullYear() - years, end.getUTCMonth(), end.getUTCDate()) / DAY_MS);
+    }
+    var visible = rows.filter(function (row) { return row.x >= from; });
+    var limits = computeBounds(visible);
+    var scales = chart.options.scales;
+    scales.x.min = from;
+    scales.x.max = last;
+    scales.yPl.min = limits.plMin;
+    scales.yPl.max = limits.plMax;
+    scales.yRatio.max = limits.ratioMax;
+    scales.yBuy.max = limits.buyMax;
+    chartState.limits = limits;
+    updateLineRange(Math.min(LINE_MIN, limits.plMin), limits.plMax);
+    syncPlAxis();
+  }
+
+  function syncPlAxis() {
+    var limits = chartState.limits;
+    var axis = chartState.chart.options.scales.yPl;
+    axis.min = chartState.line.enabled ? Math.min(limits.plMin, Math.floor(chartState.line.value / 5) * 5) : limits.plMin;
+    chartState.chart.update();
+  }
+
+  function formatLineValue() {
+    document.getElementById('mvp-line-value').textContent = signed(chartState.line.value, 0) + '%';
+  }
+
+  function updateLineRange(minimum, maximum) {
+    var range = document.getElementById('mvp-line-range');
+    range.min = minimum;
+    range.max = maximum;
+    chartState.line.value = Math.min(maximum, Math.max(minimum, chartState.line.value));
+    range.value = chartState.line.value;
+    formatLineValue();
+  }
+
+  function bindLine() {
+    var toggle = document.getElementById('mvp-line-on');
+    var range = document.getElementById('mvp-line-range');
+    toggle.addEventListener('change', function () {
+      chartState.line.enabled = toggle.checked;
+      range.disabled = !toggle.checked;
+      syncPlAxis();
+    });
+    range.addEventListener('input', function () {
+      chartState.line.value = Number(range.value);
+      formatLineValue();
+      syncPlAxis();
+    });
+  }
+
+  function bindToggles() {
+    Array.prototype.forEach.call(document.querySelectorAll('#mvp-root .mvp-toggles input'), function (input) {
+      input.addEventListener('change', function () {
+        chartState.chart.setDatasetVisibility(Number(input.getAttribute('data-series')), input.checked);
+        chartState.chart.update();
+      });
+    });
+  }
+
+  function bindPeriods() {
+    var buttons = document.querySelectorAll('#mvp-root .mvp-periods button');
+    Array.prototype.forEach.call(buttons, function (button) {
+      button.addEventListener('click', function () {
+        Array.prototype.forEach.call(buttons, function (other) { other.className = other === button ? 'mvp-active' : ''; });
+        applyPeriod(Number(button.getAttribute('data-years')));
+      });
+    });
+    applyPeriod(5);
+  }
+
+  function render(data) {
+    var panel = data.panel;
+    var label = dateLabel(data.latest.date);
+    document.getElementById('mvp-date-1').textContent = '(' + label + ')';
+    document.getElementById('mvp-date-2').textContent = '(' + label + ')';
+
+    var body = document.getElementById('mvp-balance-body');
+    body.appendChild(balanceRow('合計', false, panel.amount, panel.shares, 'total'));
+    body.appendChild(balanceRow('一般', true, panel.amount, panel.shares, 'general'));
+    body.appendChild(balanceRow('制度', true, panel.amount, panel.shares, 'standard'));
+
+    var boxes = document.getElementById('mvp-boxes');
+    boxes.appendChild(box('評価損益率', signed(panel.pl_buy, 2) + '%', 'mvp-num'));
+    boxes.appendChild(box('評価損益率(売り方)', signed(panel.pl_sell, 2) + '%', 'mvp-num'));
+    boxes.appendChild(box('信用倍率･金額', panel.ratio_amount.toFixed(2) + '倍', 'mvp-num'));
+    boxes.appendChild(box('信用倍率･株数', panel.ratio_shares.toFixed(2) + '倍', 'mvp-num'));
+
+    makeChart('mvp-weekly-chart', buildRows(data));
+    chartState.line.value = Math.round(data.weekly.concat(data.daily).slice(-1)[0].pl);
+    bindToggles();
+    bindLine();
+    bindPeriods();
+    document.getElementById('mvp-updated').textContent = 'データの更新: ' + data.updated;
+  }
+
+  fetch(DATA_URL, { cache: 'no-cache' })
+    .then(function (response) {
+      if (!response.ok) {
+        throw new Error('HTTP ' + response.status);
+      }
+      return response.json();
+    })
+    .then(render)
+    .catch(function (error) {
+      var note = document.getElementById('mvp-updated');
+      note.textContent = 'データを読み込めませんでした: ' + String(error);
+      note.className = 'mvp-note mvp-error';
+    });
+})();
+</script>
+</div>

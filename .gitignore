@@ -1,0 +1,8 @@
+daily_raw/
+data/信用評価損益率_2*_公式.csv
+__pycache__/
+.DS_Store
+_preview/
+.claude/
+data/weekly_own.csv
+data/nikkei_weekly.csv
