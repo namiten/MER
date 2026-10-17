@@ -6,3 +6,4 @@ _preview/
 .claude/
 data/weekly_own.csv
 data/nikkei_weekly.csv
+.watermark_key
