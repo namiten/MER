@@ -41,8 +41,13 @@
 #mvp-root .mvp-note li{margin:4px 0}
 #mvp-root .mvp-error{color:#b3261e;font-weight:700}
 @media (max-width:760px){#mvp-root .mvp-boxes{grid-template-columns:repeat(2,1fr)}#mvp-root table.mvp-table{font-size:13px}#mvp-root .mvp-table th,#mvp-root .mvp-table td{padding:8px 4px}#mvp-root .mvp-table tbody th.mvp-indent{padding-left:14px}#mvp-root .mvp-chart{height:280px}#mvp-root .mvp-box-label{font-size:13px}#mvp-root .mvp-box-value{font-size:17px}}
+#mvp-root .mvp-news {margin: 0 0 10px;overflow-anchor: none}
+#mvp-root .mvp-news-item {border: 2px solid #ba0000;padding: 8px 12px;margin: 0 0 6px;font-size: 14px}
+#mvp-root .mvp-news-head {font-weight: 700;margin: 0 0 4px}
+#mvp-root .mvp-news-item a {color: #03307b;font-weight: 700}
 </style>
 
+<div class="mvp-news" id="mvp-news"></div>
 <div class="mvp-title"><span>二市場信用残高</span><a href="#mvp-chart-anchor">信用評価損益率の推移</a></div>
 
 <div class="mvp-bar"><span>二市場合計</span><span id="mvp-date-1"></span></div>
@@ -435,4 +440,34 @@
     });
 })();
 </script>
+    <script>
+      (function () {
+        var NOTICE_URL = 'https://namiten.github.io/MER/notices.json';
+        var box = document.getElementById('mvp-news');
+        var NOTICE_PAGE = 'https://namiten.github.io/MER/notices.html';
+        fetch(NOTICE_URL, { cache: 'no-cache' })
+          .then(function (response) { return response.ok ? response.json() : { 'お知らせ': [] }; })
+          .then(function (data) {
+            (data['お知らせ'] || []).forEach(function (item, index) {
+              if (item['表示'] === false) {
+                return;
+              }
+              var wrap = document.createElement('div');
+              wrap.className = 'mvp-news-item';
+              var label = document.createElement('span');
+              label.className = 'mvp-news-head';
+              label.textContent = '〈お知らせ〉';
+              var link = document.createElement('a');
+              link.href = NOTICE_PAGE + '#notice-' + index;
+              link.target = '_blank';
+              link.rel = 'noopener';
+              link.appendChild(label);
+              link.appendChild(document.createTextNode(item['見出し'] + (item['日付'] ? '（' + item['日付'] + '）' : '')));
+              wrap.appendChild(link);
+              box.appendChild(wrap);
+            });
+          })
+          .catch(function () {});
+      })();
+    </script>
 </div>

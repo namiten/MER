@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="ja">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="robots" content="noai, noimageai">
+  <meta name="copyright" content="©2023-2026 namiten, namiten.jp All Rights Reserved">
+  <title>お知らせ｜二市場信用残高と信用評価損益率</title>
+  <style>
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      background: #fff
+    }
+
+    body {
+      padding: 4px 8px 12px
+    }
+
+    #mvp-root {
+      max-width: 980px;
+      margin: 0 auto;
+      font-family: "MS PGothic", "ＭＳ Ｐゴシック", "MS PGothic", sans-serif;
+      color: #000;
+      line-height: 1.6
+    }
+
+    #mvp-root * {
+      box-sizing: border-box
+    }
+
+    #mvp-root .mvp-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin: 0 0 6px;
+      padding: 2px 0 8px 12px;
+      border-left: 6px solid #1a7fd4;
+      border-bottom: 2px solid #666
+    }
+
+    #mvp-root .mvp-bar {
+      position: relative;
+      background: #ddd;
+      color: #000;
+      padding: 8px 12px 8px 16px;
+      margin: 20px 0 8px;
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-size: 17px;
+      font-weight: 700
+    }
+
+    #mvp-root .mvp-bar::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 21%;
+      bottom: 21%;
+      width: 5px;
+      background: #355480
+    }
+
+    #mvp-root .mvp-bar span:last-child {
+      font-size: 15px;
+      font-weight: 400
+    }
+
+    #mvp-root p {
+      margin: 0;
+      font-size: 15px;
+      min-height: 1.6em
+    }
+  </style>
+</head>
+
+<body>
+  <div id="mvp-root">
+    <div class="mvp-title">お知らせ</div>
+    <div id="mvp-news-list"></div>
+    <script>
+      (function () {
+        var list = document.getElementById('mvp-news-list');
+        fetch('notices.json', { cache: 'no-cache' })
+          .then(function (response) { return response.ok ? response.json() : { 'お知らせ': [] }; })
+          .then(function (data) {
+            var items = data['お知らせ'] || [];
+            items.forEach(function (item, index) {
+              if (item['表示'] === false) {
+                return;
+              }
+              var bar = document.createElement('div');
+              bar.className = 'mvp-bar';
+              bar.id = 'notice-' + index;
+              var title = document.createElement('span');
+              title.textContent = item['見出し'];
+              var date = document.createElement('span');
+              date.textContent = item['日付'] || '';
+              bar.appendChild(title);
+              bar.appendChild(date);
+              list.appendChild(bar);
+              (item['本文'] || []).forEach(function (text) {
+                var paragraph = document.createElement('p');
+                paragraph.textContent = text;
+                list.appendChild(paragraph);
+              });
+            });
+            if (location.hash) {
+              var target = document.getElementById(location.hash.slice(1));
+              if (target) {
+                target.scrollIntoView();
+              }
+            }
+          })
+          .catch(function () {});
+      })();
+    </script>
+  </div>
+</body>
+
+</html>
