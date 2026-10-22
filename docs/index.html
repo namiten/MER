@@ -1022,7 +1022,7 @@
           .then(function (response) { return response.ok ? response.json() : { 'お知らせ': [] }; })
           .then(function (data) {
             (data['お知らせ'] || []).forEach(function (item, index) {
-              if (item['表示'] === false) {
+              if (item['表示'] === false || item['トップに表示'] === false) {
                 return;
               }
               var wrap = document.createElement('div');

@@ -21,6 +21,7 @@ STQ_DIR = os.path.join(RAW_DIR, 'stq')
 REPORT_DIR = os.path.join(RAW_DIR, 'nse_report')
 LEGACY_PRICE_CSV = os.path.join(RAW_DIR, 'price_legacy_20261005.csv')
 SUMMARY_CSV = os.path.join(DATA_DIR, '信用評価損益率_日次_公式.csv')
+VERSION_JSON = os.path.join(DATA_DIR, '東証PDFの版.json')
 LOG_PATH = os.path.join(RAW_DIR, 'daily_update.log')
 TSE_PAGE = 'https://www.jpx.co.jp/markets/statistics-equities/margin/01.html'
 TSE_SITE = 'https://www.jpx.co.jp'
@@ -30,7 +31,8 @@ QUOTATION_LIST = 'https://www.jpx.co.jp/automation/markets/statistics-equities/d
 REPORT_PAGE = 'https://www.nse.or.jp/market/condition/report/'
 REPORT_BASE = 'https://www.nse.or.jp/market/condition/report/files/'
 TEMP_PDF = os.path.join(RAW_DIR, 'quotation_temp.pdf')
-TSE_LINK = re.compile(r'href="([^"]*?/(\d{8})_mtall\.pdf)"')
+TSE_LINK = re.compile(r'href="([^"]*?/(\d{8})_mtall(?:_(\d+))?\.pdf)"')
+TSE_VERSION = re.compile(r'_mtall_(\d+)\.pdf$')
 NSE_LINK = re.compile(r'href="([^"]*?/msinyo(\d{6})\.pdf)"')
 REPORT_LINK = re.compile(r'href="files/(\d{8})\.pdf"')
 FIRST_DATE = '20260925'
@@ -93,10 +95,33 @@ def list_links(fetcher, page_url, pattern, site, date_of):
         raise StopRequested(f'一覧ページを取得できません: {page_url}')
     html = body.decode('utf-8', errors='ignore')
     links = {}
+    versions = {}
     for match in pattern.finditer(html):
         href = match.group(1)
-        links[date_of(match.group(2))] = href if href.startswith('http') else (site + href if href.startswith('/') else href)
+        date = date_of(match.group(2))
+        version = int(match.group(3)) if pattern.groups >= 3 and match.group(3) else 0
+        if versions.get(date, -1) > version:
+            continue
+        versions[date] = version
+        links[date] = href if href.startswith('http') else (site + href if href.startswith('/') else href)
     return links
+
+
+def tse_version(url):
+    match = TSE_VERSION.search(url)
+    return int(match.group(1)) if match else 0
+
+
+def load_versions():
+    if not os.path.exists(VERSION_JSON):
+        return {}
+    with open(VERSION_JSON, encoding='utf-8') as file:
+        return json.load(file)
+
+
+def save_versions(versions):
+    with open(VERSION_JSON, 'w', encoding='utf-8') as file:
+        json.dump(dict(sorted(versions.items())), file, ensure_ascii=False, indent=1)
 
 
 def to_full_date(text):
@@ -176,14 +201,15 @@ def main():
         stq_urls = list_quotation_reports(fetcher)
         report_dates = {match.group(1) for match in REPORT_LINK.finditer(fetcher.get(REPORT_PAGE).decode('utf-8', errors='ignore'))}
         done = set() if recompute else saved_dates()
-        candidates = sorted(date for date in tse_links if date >= FIRST_DATE and date not in done)
+        versions = load_versions()
+        candidates = sorted(date for date in tse_links if date >= FIRST_DATE and (date not in done or tse_version(tse_links[date]) > versions.get(date, 0)))
         log(f'東証 {len(tse_links)}日分、名証 {len(nse_links)}日分、株価 {len(stq_urls)}日分が公表中。未算出の候補 {candidates}')
         for date in candidates:
             missing = [label for label, source in (('名証PDF', nse_links), ('株価', stq_urls), ('名証日報', dict.fromkeys(report_dates))) if date not in source]
             if missing:
                 log(f'{date}: {"、".join(missing)}がまだ公表されていないため、見送りました')
                 continue
-            tse_path = os.path.join(TSE_DIR, f'{date}_mtall.pdf')
+            tse_path = os.path.join(TSE_DIR, os.path.basename(tse_links[date]))
             nse_path = os.path.join(NSE_DIR, f'msinyo{date[2:]}.pdf')
             stq_path = os.path.join(STQ_DIR, f'stq_{date}.csv')
             report_path = os.path.join(REPORT_DIR, f'{date}.pdf')
@@ -192,7 +218,10 @@ def main():
                 continue
             prepare_fallbacks(fetcher, stq_urls, date)
             result = pl.run(date, tse_path, nse_path, stq_path, fallback_price_files(date), report_path)
-            log(f'{date}: 評価損益率 {result}% を算出しました')
+            if tse_version(tse_links[date]):
+                versions[date] = tse_version(tse_links[date])
+                save_versions(versions)
+            log(f'{date}: 評価損益率 {result}% を算出しました（{os.path.basename(tse_path)}）')
     except StopRequested as error:
         log(f'停止しました: {error}')
         sys.exit(1)

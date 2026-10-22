@@ -75,6 +75,23 @@
       font-size: 15px;
       min-height: 1.6em
     }
+
+    #mvp-root .mvp-notice-table {
+      border-collapse: collapse;
+      margin: 0 0 0 1em;
+      font-size: 15px
+    }
+
+    #mvp-root .mvp-notice-table td {
+      padding: 0 0 0 1.5em;
+      text-align: right;
+      white-space: nowrap
+    }
+
+    #mvp-root .mvp-notice-table td:first-child {
+      padding: 0;
+      text-align: left
+    }
   </style>
 </head>
 
@@ -104,6 +121,18 @@
               bar.appendChild(date);
               list.appendChild(bar);
               (item['本文'] || []).forEach(function (text) {
+                if (text && text['表']) {
+                  var table = document.createElement('table');
+                  table.className = 'mvp-notice-table';
+                  text['表'].forEach(function (cells) {
+                    var row = table.insertRow();
+                    cells.forEach(function (value) {
+                      row.insertCell().textContent = value;
+                    });
+                  });
+                  list.appendChild(table);
+                  return;
+                }
                 var paragraph = document.createElement('p');
                 paragraph.textContent = text;
                 list.appendChild(paragraph);
